@@ -3,7 +3,10 @@ as3proj
 
 ![screenshot of rendered maps](http://vis4.net/blog/wp-content/uploads/2010/04/as3proj1.png)
 
-as3proj is a collection of map projection classes which you can use to convert geographical coodinates (pairs of latitude and longitude values) into screen coordinates. It is a port from the (Java Map Projection Library)[http://www.jhlabs.com/java/maps/proj/] by Jerry Huxtable, which is itself a port from the famous (PROJ.4)[http://trac.osgeo.org/proj/] library.
+as3proj is a collection of map projection classes which you can use to convert geographical coodinates (pairs of latitude and longitude values) into screen coordinates. It is a port from the Java Map Projection Library[1] by Jerry Huxtable, which is itself a port from the famous PROJ.4 library[2].
+
+1 http://www.jhlabs.com/java/maps/proj/
+2 http://trac.osgeo.org/proj/
 
 ### Usage example
 
