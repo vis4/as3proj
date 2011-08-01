@@ -1,0 +1,135 @@
+﻿/*
+Copyright 2006 Jerry Huxtable
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/*
+ * This file was semi-automatically converted from the public-domain USGS PROJ source.
+ */
+
+/*
+ * This file was manually ported to actionscript by Gregor Aisch, vis4.net
+ */
+
+package net.vis4.map.proj 
+{
+	import flash.geom.Point;
+	import net.vis4.map.MapMath;
+
+	public class BonneProjection extends Projection
+	{
+
+		private var phi1:Number;
+		private var cphi1:Number;
+		private var am1:Number;
+		private var m1:Number;
+		private var en:Array;
+	
+		override public function project(lplam:Number, lpphi:Number, out:Point):Point 
+		{
+			var E:Number, rh:Number;
+			
+			if (spherical) {
+				rh = cphi1 + phi1 - lpphi;
+				if (Math.abs(rh) > EPS10) {
+					out.x = rh * Math.sin(E = lplam * Math.cos(lpphi) / rh);
+					out.y = cphi1 - rh * Math.cos(E);
+				} else
+					out.x = out.y = 0.;
+			} else {
+				var c:Number;
+
+				rh = am1 + m1 - MapMath.mlfn(lpphi, E = Math.sin(lpphi), c = Math.cos(lpphi), en);
+				E = c * lplam / (rh * Math.sqrt(1. - es * E * E));
+				out.x = rh * Math.sin(E);
+				out.y = am1 - rh * Math.cos(E);
+			}
+			return out;
+		}
+		
+		override public function projectInverse(xyx:Number, xyy:Number, out:Point):Point 
+		{
+			if (spherical) {
+				var rh:Number;
+
+				rh = MapMath.distance(xyx, out.y = cphi1 - xyy);
+				out.y = cphi1 + phi1 - rh;
+				if (Math.abs(out.y) > MapMath.HALFPI) throw new ProjectionError("I");
+				if (Math.abs(Math.abs(out.y) - MapMath.HALFPI) <= EPS10)
+					out.x = 0.;
+				else
+					out.x = rh * Math.atan2(xyx, xyy) / Math.cos(out.y);
+			} else {
+				var s:Number;
+
+				rh = MapMath.distance(xyx, out.y = am1 - xyy);
+				out.y = MapMath.inv_mlfn(am1 + m1 - rh, es, en);
+				if ((s = Math.abs(out.y)) < MapMath.HALFPI) {
+					s = Math.sin(out.y);
+					out.x = rh * Math.atan2(xyx, xyy) *
+					   Math.sqrt(1. - es * s * s) / Math.cos(out.y);
+				} else if (Math.abs(s - MapMath.HALFPI) <= EPS10)
+					out.x = 0.;
+				else throw new ProjectionError("I");
+			}
+			return out;
+		}
+		
+		override public function isEqualArea():Boolean 
+		{
+			return true;
+		}
+		
+		override public function hasInverse():Boolean 
+		{
+			return true;
+		}
+		
+		override public function initialize():void 
+		{
+			
+			
+			super.initialize();
+			
+			
+			
+			var c:Number;
+			
+	//		phi1 = pj_param(params, "rlat_1").f;
+			phi1 = MapMath.HALFPI;
+			if (Math.abs(phi1) < EPS10)
+				throw new ProjectionError("-23");
+			if (!spherical) {
+				en = MapMath.enfn(es);
+				m1 = MapMath.mlfn(phi1, am1 = Math.sin(phi1),
+					c = Math.cos(phi1), en);
+				am1 = c / (Math.sqrt(1. - es * am1 * am1) * am1);
+			} else {
+				if (Math.abs(phi1) + EPS10 >= MapMath.HALFPI)
+					cphi1 = 0.;
+				else
+					cphi1 = 1. / Math.tan(phi1);
+			}			
+		}
+		
+		override public function toString():String 
+		{
+			return "Bonne";
+		}
+		
+		override public function get inventor():String { return "Rigobert Bonne"; }
+		override public function get year():int { return 1752; }
+	}
+
+}
